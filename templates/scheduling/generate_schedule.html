@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Schedule{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Generate Monthly Schedule</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This will generate a complete monthly schedule for all selected locations. Any existing schedules for the selected month will be replaced.
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.month.id_for_label }}" class="form-label">Month</label>
+                                {{ form.month }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
+                                {{ form.year }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Locations</label>
+                        <div class="row">
+                            {% for choice in form.locations %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.locations.errors %}
+                            <div class="text-danger">{{ form.locations.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Scheduling Rules:</strong>
+                        <ul class="mb-0">
+                            <li>Female employees prefer 10AM-7PM and 1PM-10PM shifts</li>
+                            <li>No off days on weekends</li>
+                            <li>Holidays are automatically skipped</li>
+                            <li>Employee off days are respected (except weekends)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cogs me-2"></i>Generate Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

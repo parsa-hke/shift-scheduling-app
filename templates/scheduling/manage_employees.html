@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Employees{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Employees</h1>
+    <a href="{% url 'add_employee' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Employee
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Current Employees</h5>
+            </div>
+            <div class="card-body">
+                {% if employees %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employees %}
+                                <tr>
+                                    <td>{{ employee.name }}</td>
+                                    <td>
+                                        {% if employee.gender == 'F' %}
+                                            <span>Female</span>
+                                        {% else %}
+                                            <span>Male</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ employee.phone|default:"-" }}</td>
+                                    <td>{{ employee.email|default:"-" }}</td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No employees found. <a href="{% url 'add_employee' %}">Add your first employee</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Bulk Operations</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <div class="mb-3">
+                            {% for field in form %}
+                                {% if field.name != 'DELETE' %}
+                                    <div class="mb-2">
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% if form.DELETE %}
+                                <div class="form-check">
+                                    {{ form.DELETE }}
+                                    <label for="{{ form.DELETE.id_for_label }}" class="form-check-label text-danger">
+                                        Delete this employee
+                                    </label>
+                                </div>
+                            {% endif %}
+                            <hr>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}View Schedule - {{ month_name }} {{ year }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Schedule - {{ month_name }} {{ year }}</h1>
+    <div>
+        {% if schedules %}
+            <a href="{% url 'export_schedule' month year %}" class="btn btn-success">
+                <i class="fas fa-file-excel me-2"></i>Export to Excel
+            </a>
+        {% endif %}
+        <a href="{% url 'generate_schedule' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Generate New
+        </a>
+    </div>
+</div>
+
+{% if schedules %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Location</th>
+                            <th>Shift</th>
+                            <th>Employee</th>
+                            <th>Gender</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                        <tr {% if schedule.date.weekday >= 5 %}class="table-warning"{% endif %}>
+                            <td>{{ schedule.date|date:"M d" }}</td>
+                            <td>{{ schedule.date|date:"l" }}</td>
+                            <td>{{ schedule.location.name }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ schedule.get_shift_display }}</span>
+                            </td>
+                            <td>{{ schedule.employee.name }}</td>
+                            <td>
+                                {% if schedule.employee.gender == 'F' %}
+                                    <span class="badge bg-info">Female</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Male</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Schedule Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Shifts:</strong> {{ schedules.count }}</p>
+                    <p><strong>Weekends Highlighted:</strong> <span class="badge bg-warning text-dark">Yellow rows</span></p>
+                    <p><strong>Total Schedule Entries:</strong> {{ schedules|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Legend</h6>
+                </div>
+                <div class="card-body">
+                    <p><span class="badge bg-primary">10AM-7PM</span> Morning Shift</p>
+                    <p><span class="badge bg-primary">1PM-10PM</span> Afternoon Shift</p>
+                    <p><span class="badge bg-primary">3PM-12AM</span> Evening Shift</p>
+                    <p class="text-warning"><strong>Yellow Background:</strong> Weekend shifts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h5>No Schedule Found</h5>
+        <p>No schedule has been generated for {{ month_name }} {{ year }} yet.</p>
+        <a href="{% url 'generate_schedule' %}" class="btn btn-primary">Generate Schedule Now</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Car Scheduling System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dashboard</h1>
+    <div>
+        <a href="{% url 'generate_schedule' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Generate New Schedule
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Active Employees</h5>
+                        <h2>{{ total_employees }}</h2>
+                    </div>
+                    <i class="fas fa-users fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Active Locations</h5>
+                        <h2>{{ total_locations }}</h2>
+                    </div>
+                    <i class="fas fa-map-marker-alt fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Quick Actions</h5>
+                        <a href="{% url 'view_schedule' %}" class="btn btn-light btn-sm">View Current Schedule</a>
+                    </div>
+                    <i class="fas fa-calendar fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recent_schedules %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Schedules</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Location</th>
+                        <th>Shift</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in recent_schedules %}
+                    <tr>
+                        <td>{{ schedule.date|date:"M d, Y" }}</td>
+                        <td>{{ schedule.employee.name }}</td>
+                        <td>{{ schedule.location.name }}</td>
+                        <td>{{ schedule.get_shift_display }}</td>
+                        <td>{{ schedule.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Setup</h5>
+            </div>
+            <div class="card-body">
+                <p>Get started by setting up your data:</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'add_employee' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add Employees
+                    </a>
+                    <a href="{% url 'add_location' %}" class="btn btn-outline-success">
+                        <i class="fas fa-plus me-2"></i>Add Locations
+                    </a>
+                    <a href="{% url 'manage_holidays' %}" class="btn btn-outline-info">
+                        <i class="fas fa-calendar-day me-2"></i>Set Holidays
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">How It Works</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Add your employees and locations</li>
+                    <li>Set holidays and employee off days</li>
+                    <li>Generate monthly schedules</li>
+                    <li>Export to Excel for distribution</li>
+                </ol>
+                <p class="text-muted small">
+                    The system automatically considers gender preferences for shifts and ensures fair distribution.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

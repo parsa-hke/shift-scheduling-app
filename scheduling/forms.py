@@ -1,7 +1,7 @@
+# scheduling/forms.py
 from django import forms
-from django.forms import modelformset_factory
 from .models import Employee, Location, Holiday, EmployeeOffDay
-from datetime import date, datetime
+from datetime import date
 import calendar
 
 
@@ -69,8 +69,3 @@ class ScheduleGenerationForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         required=True
     )
-
-
-# Create formsets for bulk operations
-EmployeeFormSet = modelformset_factory(Employee, form=EmployeeForm, extra=3, can_delete=True)
-LocationFormSet = modelformset_factory(Location, form=LocationForm, extra=2, can_delete=True)

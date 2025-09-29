@@ -1,0 +1,9 @@
+jupyter
+jupyterlab-pygments
+pip
+attrs
+wheel
+protobuf
+Pillow
+filelock
+Django

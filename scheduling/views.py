@@ -6,7 +6,7 @@ from django.db import transaction
 from .models import Employee, Location, Holiday, EmployeeOffDay, Schedule
 from .forms import (
     EmployeeForm, LocationForm, HolidayForm, OffDayForm,
-    ScheduleGenerationForm, EmployeeFormSet, LocationFormSet
+    ScheduleGenerationForm
 )
 from .scheduler import ScheduleGenerator
 import calendar
@@ -24,20 +24,9 @@ def dashboard(request):
 
 
 def manage_employees(request):
-    """Manage employees view with bulk operations"""
-    if request.method == 'POST':
-        formset = EmployeeFormSet(request.POST)
-        if formset.is_valid():
-            with transaction.atomic():
-                formset.save()
-            messages.success(request, 'Employees updated successfully!')
-            return redirect('manage_employees')
-    else:
-        formset = EmployeeFormSet(queryset=Employee.objects.filter(is_active=True))
-
-    employees = Employee.objects.filter(is_active=True)
+    """Manage employees view"""
+    employees = Employee.objects.filter(is_active=True).order_by('name')
     return render(request, 'scheduling/manage_employees.html', {
-        'formset': formset,
         'employees': employees
     })
 
@@ -56,21 +45,35 @@ def add_employee(request):
     return render(request, 'scheduling/add_employee.html', {'form': form})
 
 
+def edit_employee(request, employee_id):
+    """Edit employee"""
+    employee = get_object_or_404(Employee, id=employee_id)
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, instance=employee)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Employee updated successfully!')
+            return redirect('manage_employees')
+    else:
+        form = EmployeeForm(instance=employee)
+
+    return render(request, 'scheduling/edit_employee.html', {'form': form, 'employee': employee})
+
+
+@require_http_methods(["POST"])
+def delete_employee(request, employee_id):
+    """Delete employee (soft delete)"""
+    employee = get_object_or_404(Employee, id=employee_id)
+    employee.is_active = False
+    employee.save()
+    messages.success(request, f'{employee.name} has been deactivated!')
+    return redirect('manage_employees')
+
+
 def manage_locations(request):
     """Manage locations view"""
-    if request.method == 'POST':
-        formset = LocationFormSet(request.POST)
-        if formset.is_valid():
-            with transaction.atomic():
-                formset.save()
-            messages.success(request, 'Locations updated successfully!')
-            return redirect('manage_locations')
-    else:
-        formset = LocationFormSet(queryset=Location.objects.filter(is_active=True))
-
-    locations = Location.objects.filter(is_active=True)
+    locations = Location.objects.filter(is_active=True).order_by('name')
     return render(request, 'scheduling/manage_locations.html', {
-        'formset': formset,
         'locations': locations
     })
 
@@ -87,6 +90,31 @@ def add_location(request):
         form = LocationForm()
 
     return render(request, 'scheduling/add_location.html', {'form': form})
+
+
+def edit_location(request, location_id):
+    """Edit location"""
+    location = get_object_or_404(Location, id=location_id)
+    if request.method == 'POST':
+        form = LocationForm(request.POST, instance=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Location updated successfully!')
+            return redirect('manage_locations')
+    else:
+        form = LocationForm(instance=location)
+
+    return render(request, 'scheduling/edit_location.html', {'form': form, 'location': location})
+
+
+@require_http_methods(["POST"])
+def delete_location(request, location_id):
+    """Delete location (soft delete)"""
+    location = get_object_or_404(Location, id=location_id)
+    location.is_active = False
+    location.save()
+    messages.success(request, f'{location.name} has been deactivated!')
+    return redirect('manage_locations')
 
 
 def manage_holidays(request):
@@ -107,6 +135,21 @@ def manage_holidays(request):
     })
 
 
+def edit_holiday(request, holiday_id):
+    """Edit holiday"""
+    holiday = get_object_or_404(Holiday, id=holiday_id)
+    if request.method == 'POST':
+        form = HolidayForm(request.POST, instance=holiday)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Holiday updated successfully!')
+            return redirect('manage_holidays')
+    else:
+        form = HolidayForm(instance=holiday)
+
+    return render(request, 'scheduling/edit_location.html', {'form': form, 'holiday': holiday})
+
+
 def manage_off_days(request):
     """Manage employee off days"""
     if request.method == 'POST':
@@ -123,6 +166,21 @@ def manage_off_days(request):
         'form': form,
         'off_days': off_days
     })
+
+
+def edit_off_day(request, off_day_id):
+    """Edit off day"""
+    off_day = get_object_or_404(EmployeeOffDay, id=off_day_id)
+    if request.method == 'POST':
+        form = OffDayForm(request.POST, instance=off_day)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Off day updated successfully!')
+            return redirect('manage_off_days')
+    else:
+        form = OffDayForm(instance=off_day)
+
+    return render(request, 'scheduling/edit_off_day.html', {'form': form, 'off_day': off_day})
 
 
 def generate_schedule(request):
